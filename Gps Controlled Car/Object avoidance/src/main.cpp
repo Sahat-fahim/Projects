@@ -3,7 +3,7 @@
 #include <Arduino_FreeRTOS.h>
 #include <SoftwareSerial.h>
 
-const byte go = 0;
+const byte forward = 0;
 const byte comparator = 1;
 const byte right = 2;
 const byte left = 3;
@@ -140,7 +140,7 @@ void carNarrow(){
 
  switch (Direction)
    {
-   case go:
+   case forward:
        carFORWARD();
        vTaskDelay(500/ portTICK_PERIOD_MS);
        carSTOP();
@@ -163,51 +163,43 @@ void carNarrow(){
        leftDistance = distance;
        vTaskDelay(500/ portTICK_PERIOD_MS);  //turnig left twice to fully turn left
       
-       if (rightDistance > leftDistance)
+       if (rightDistance > leftDistance && abs(leftDistance - rightDistance) > 8)
        {
          Direction = right;
-       }else if (leftDistance > rightDistance)
+       }else if (leftDistance > rightDistance && abs(leftDistance - rightDistance) > 8)
        {
          Direction = left;
-       }else if (leftDistance == rightDistance)
+       }else if (abs(leftDistance - rightDistance) < 8 || leftDistance == rightDistance)
        {
+         car_turn_Right();
+         vTaskDelay(100/ portTICK_PERIOD_MS);
          Direction = reverse;
        }
      break;
      
    case right:
-  
       car_turn_Right();
-      vTaskDelay(500/ portTICK_PERIOD_MS);
+      vTaskDelay(100/ portTICK_PERIOD_MS);
 
-     if (distance <= 40){
-       carSTOP();
-       vTaskDelay(500/ portTICK_PERIOD_MS);
-       Direction = reverse;
-      }else if (distance >= 40)
+     if (distance >= 40)
       {
         carSTOP();
         vTaskDelay(500/ portTICK_PERIOD_MS);
-        Direction = go;
+        Direction = forward;
       }    
     break;
 
    case left:
      
         car_turn_Left();  
-        vTaskDelay(500/ portTICK_PERIOD_MS);
+        vTaskDelay(100/ portTICK_PERIOD_MS);
    
-     if (distance <= 40){
-       carSTOP();
-       vTaskDelay(500/ portTICK_PERIOD_MS);
-       Direction = reverse;
-     }else if (distance >= 40)
+     if (distance >= 40)
      {
        carSTOP();
        vTaskDelay(500/ portTICK_PERIOD_MS);
-       Direction = go;
-     }
-    
+       Direction = forward;
+     }    
    break;
 
    case reverse:
