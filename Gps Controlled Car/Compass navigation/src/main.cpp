@@ -13,9 +13,12 @@ SoftwareSerial BT(14, 15);  //rx, tx
 HMC5883L_Simple Compass;
 
 
-int Rspeed = 255;
-int Lspeed = 174;
-int carAngle;
+int Rspeed = 102+15;
+int error = 48+15;
+
+int Lspeed = Rspeed+error;
+int currentAngle;
+int desiredAngle = 20;
 
 char controller; 
 
@@ -71,28 +74,37 @@ void adjustAngle(void *argc){
   {
     if (controller == '1')
   {
-    
+  int currentBearing= currentAngle;
 
-  if (carAngle >= 0 && carAngle <= 120)
-  {
-    carSTOP();
-  }else
-  {
-    car_turn_Right();
-    vTaskDelay(2000/ portTICK_PERIOD_MS);
-    carSTOP();
-    vTaskDelay(2000/ portTICK_PERIOD_MS);
+  int desiredBearing = currentAngle+20;
+  if(desiredBearing > 359) {
+    desiredBearing -= 359;
   }
-  
-
+  do
+  {
+    int newBearing = currentAngle;
+    double desiredBearingSINE = sin(desiredBearing * (PI/180));
+    double currentBearingSINE = sin(newBearing * (PI/180));
+    
+    if(desiredBearingSINE > 0 && currentBearingSINE < 0) {
+     newBearing = newBearing - 360;
+       }
+     if(newBearing >= desiredBearing) {
+      carSTOP();
+      break;
+    }
+    else {
+      car_turn_Left();
+    }
+  } while (1);
 
 
   }else if (controller == '0')
   {
-   carSTOP();
+  carSTOP();
   }
+  
   }
-
 }
 
 
@@ -102,8 +114,8 @@ void compass(void *argc){
    
    while (1)
    {
-     carAngle = Compass.GetHeadingDegrees();
-     BT.println(carAngle);
+     currentAngle = Compass.GetHeadingDegrees();
+     BT.println(currentAngle);
    }
 }
 
@@ -147,10 +159,11 @@ void carBACKWARD(){
 
 void car_turn_Right(){
 
-  frontLEFT.setSpeed(200);
-  frontRIGHT.setSpeed(200);
-  backLEFT.setSpeed(200);   
-  backRIGHT.setSpeed(200);
+   frontLEFT.setSpeed(80);
+   frontRIGHT.setSpeed(50);
+   backLEFT.setSpeed(80);   
+   backRIGHT.setSpeed(50);
+
   
   frontLEFT.run(FORWARD);
   frontRIGHT.run(BACKWARD);
@@ -160,13 +173,14 @@ void car_turn_Right(){
 
 void car_turn_Left(){
 
-  frontLEFT.setSpeed(200);
-  frontRIGHT.setSpeed(200);
-  backLEFT.setSpeed(200);   
-  backRIGHT.setSpeed(200);
+   frontLEFT.setSpeed(50);
+   frontRIGHT.setSpeed(80);
+   backLEFT.setSpeed(50);   
+   backRIGHT.setSpeed(80);
+
   
   frontLEFT.run(BACKWARD);
   frontRIGHT.run(FORWARD);
-  backLEFT.run(BACKWARD);
+  backLEFT.run(RELEASE);
   backRIGHT.run(FORWARD);
 }
