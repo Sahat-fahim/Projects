@@ -2,9 +2,14 @@ Welcome to my repository
 
 The perpose of this repository is store all my projects. Source code, video link, project documentation are available in folder representing a certain project.
 
-Current projects : 
-1. GPS controlled car. (Personal) 
-2. Autonomous Farming. (Semester)
+Current running projects : 
+1. GPS controlled car. (Hobby) 
+2. Precision Farming. (Semester)
 
 
-Video link - https://www.youtube.com/playlist?list=PLaTy0L8pRk8jTqdCdGJPH71IubW9hFn5F
+
+Video Playlists: 
+
+Traffic light - https://www.youtube.com/playlist?list=PLaTy0L8pRk8ilfo34ESNQQ5kvHXRP03KF
+
+Music Reactive LED - https://www.youtube.com/playlist?list=PLaTy0L8pRk8jnl1AjNcIhXimZi4pJAO38
