@@ -1,23 +1,22 @@
 #include <FastLED.h>
 #include <BluetoothSerial.h>
 
-#define NUM_LEDS 130                /* The amount of pixels/leds you have */
-const byte  right_window = 16;        /* The pin your data line is connected to */
+#define NUM_LEDS 130                
+const byte  right_window = 16;       
 const byte left_window = 19;
-#define LED_TYPE WS2812B            /* I assume you have WS2812B leds, if not just change it to whatever you have */
-#define BRIGHTNESS 80              /* Control the brightness of your leds */
-#define SATURATION 255              /* Control the saturation of your leds */
+#define LED_TYPE WS2812B           
+#define BRIGHTNESS 80              
+#define SATURATION 255              
 #define COLOR_ORDER GRB
 #define UPDATES_PER_SECOND 100
 CRGB leds[NUM_LEDS];
 
 
 // const for Running effect 
-#define updateLEDS 8        // How many do you want to update every millisecond?
-#define COLOR_SHIFT 1800  // Time for colours to shift to a new spectrum (in ms)
+#define updateLEDS 8        
+#define COLOR_SHIFT 1800  
 
 // ***variables for running effect***
-// Don't touch these, internal color variation variables
 unsigned long setTime = COLOR_SHIFT;
 int shiftC = 0;
 int mulC = 2;
@@ -43,14 +42,14 @@ int audio_input = 0;
 int freq = 0;
 
 // STANDARD VISUALIZER VARIABLES
-int midway = NUM_LEDS / 2; // CENTER MARK FROM DOUBLE LEVEL VISUALIZER
+int midway = NUM_LEDS / 2; 
 int loop_max = 0;
-int k = 255; // COLOR WHEEL POSITION
-int decay = 0; // HOW MANY MS BEFORE ONE LIGHT DECAY
+int k = 255; 
+int decay = 0; 
 int decay_check = 0;
-long pre_react = 0; // NEW SPIKE CONVERSION
-long react = 0; // NUMBER OF LEDs BEING LIT
-long post_react = 0; // OLD SPIKE CONVERSION
+long pre_react = 0; 
+long react = 0; 
+long post_react = 0;
 
 // RAINBOW WAVE SETTINGS
 int wheel_speed = 2;
@@ -207,10 +206,10 @@ void readMSGEQ7()
    
   for(band=0; band <7; band++)
   {
-    digitalWrite(strobe, LOW); // strobe pin on the shield - kicks the IC up to the next band 
-    delayMicroseconds(30); // 
-    left[band] = sample;   // store left band reading
-    right[band] = sample;   // ... and the right
+    digitalWrite(strobe, LOW); 
+    delayMicroseconds(30); 
+    left[band] = sample;   
+    right[band] = sample; 
     digitalWrite(strobe, HIGH); 
   }
     
