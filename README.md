@@ -1,6 +1,6 @@
 # Welcome to My Repository
 
-This repository serves as a comprehensive archive for all my projects. Within each project's designated folder, you'll find the source code, video links, and detailed documentation.
+This repository serves as a archive for all my projects. Within each project's designated folder, you'll find the source code, video links, and detailed documentation.
 
 
 
