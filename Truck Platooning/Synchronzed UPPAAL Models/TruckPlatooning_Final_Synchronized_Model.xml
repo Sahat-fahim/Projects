@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+//chan LeaderConnectReq,FollowerConnectReq, verified,leaveReq,joinReq;
+chan ConnectReq, verified,leaveReq,joinReq;
+broadcast chan platoonFormed, keepDistance; 
+int followers;
+int platoonSize=2; 
+int joinedFollowers=0; 
+bool cloudStandby= false;
+bool platoonAvailable= false; 
+bool safeDistance=true; 
+
+// Fahim's Declarations 
+
+broadcast chan accelaration, steering, turnComplete, FLturnComplete, decelerating;
+
+clock g;
+bool f1_Turn=false; 
+bool l_Turn=false; 
+</declaration>
+	<template>
+		<name>Operator</name>
+		<location id="id0" x="-951" y="-569">
+			<name x="-961" y="-603">standby</name>
+		</location>
+		<location id="id1" x="-722" y="-569">
+			<name x="-756" y="-603">verification</name>
+		</location>
+		<location id="id2" x="-578" y="-569">
+			<name x="-620" y="-603">connected</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="-799" y="-697">cloudStandby:=true</label>
+			<nail x="-714" y="-671"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-765" y="-510">leaveReq?</label>
+			<nail x="-731" y="-510"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-680" y="-586">verified!</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-892" y="-586">ConnectReq?</label>
+			<label kind="assignment" x="-884" y="-569">cloudStandby:=false</label>
+		</transition>
+	</template>
+	<template>
+		<name>Leader_P</name>
+		<location id="id3" x="-1640" y="-1190">
+			<name x="-1666" y="-1224">notConnected</name>
+		</location>
+		<location id="id4" x="-1427" y="-1190">
+			<name x="-1469" y="-1224">waitingConnect</name>
+		</location>
+		<location id="id5" x="-1428" y="-1062">
+			<name x="-1461" y="-1054">connected</name>
+		</location>
+		<location id="id6" x="-1215" y="-1062">
+			<name x="-1249" y="-1054">waitingJoin</name>
+		</location>
+		<location id="id7" x="-935" y="-1062">
+			<name x="-969" y="-1096">platooned</name>
+		</location>
+		<init ref="id3"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-1232" y="-1215">joinReq?</label>
+			<label kind="assignment" x="-1266" y="-1190">joinedFollowers+=1</label>
+			<nail x="-1292" y="-1190"/>
+			<nail x="-1122" y="-1190"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-1173" y="-1088">joinedFollowers==platoonSize</label>
+			<label kind="synchronisation" x="-1122" y="-1062">platoonFormed!</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="-1385" y="-1088">platoonAvailable:=true</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-1427" y="-1147">verified?</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-1598" y="-1207">ConnectReq!</label>
+		</transition>
+	</template>
+	<template>
+		<name>Follower1_P</name>
+		<location id="id8" x="-1462" y="-1028">
+			<name x="-1504" y="-1062">notConnected</name>
+		</location>
+		<location id="id9" x="-1054" y="-1028">
+			<name x="-1096" y="-1062">waitingConnect</name>
+		</location>
+		<location id="id10" x="-1055" y="-900">
+			<name x="-1088" y="-892">connected</name>
+		</location>
+		<location id="id11" x="-833" y="-901">
+			<name x="-867" y="-935">platoonSelection</name>
+		</location>
+		<location id="id12" x="-680" y="-901">
+			<name x="-697" y="-892">joined</name>
+		</location>
+		<location id="id13" x="-1275" y="-1028">
+			<name x="-1309" y="-1062">requestCloud</name>
+		</location>
+		<location id="id14" x="-680" y="-1020">
+			<name x="-705" y="-1054">platooned</name>
+		</location>
+		<init ref="id8"/>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-680" y="-977">platoonFormed?</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-1224" y="-1045">joinedFollowers==0</label>
+			<label kind="synchronisation" x="-1215" y="-1028">ConnectReq!</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-1428" y="-1028">cloudStandby==true</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-1513" y="-935">cloudStandby==false</label>
+			<nail x="-1496" y="-943"/>
+			<nail x="-1411" y="-943"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-799" y="-918">joinReq!</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-1020" y="-918">platoonAvailable==true</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-1054" y="-985">verified?</label>
+		</transition>
+	</template>
+	<template>
+		<name>Follower2_P</name>
+		<location id="id15" x="-1215" y="-696">
+			<name x="-1257" y="-730">notConnected</name>
+		</location>
+		<location id="id16" x="-807" y="-696">
+			<name x="-849" y="-730">waitingConnect</name>
+		</location>
+		<location id="id17" x="-808" y="-568">
+			<name x="-841" y="-560">connected</name>
+		</location>
+		<location id="id18" x="-586" y="-569">
+			<name x="-620" y="-603">platoonSelection</name>
+		</location>
+		<location id="id19" x="-433" y="-569">
+			<name x="-450" y="-552">joined</name>
+		</location>
+		<location id="id20" x="-1020" y="-697">
+			<name x="-1054" y="-731">requestCloud</name>
+		</location>
+		<location id="id21" x="-433" y="-688">
+			<name x="-443" y="-722">platooned</name>
+		</location>
+		<init ref="id15"/>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="-433" y="-645">platoonFormed?</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-977" y="-714">joinedFollowers==1</label>
+			<label kind="synchronisation" x="-968" y="-696">ConnectReq!</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-1181" y="-696">cloudStandby==true</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id15"/>
+			<label kind="guard" x="-1266" y="-603">cloudStandby==false</label>
+			<nail x="-1249" y="-611"/>
+			<nail x="-1164" y="-611"/>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id19"/>
+			<label kind="synchronisation" x="-552" y="-586">joinReq!</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-773" y="-586">platoonAvailable==true</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="-807" y="-653">verified?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Leader_ACC</name>
+		<declaration>// Place local declarations here.
+
+clock invL, w, g1; </declaration>
+		<location id="id22" x="-119" y="-25">
+			<name x="-129" y="-59">standby</name>
+		</location>
+		<location id="id23" x="127" y="-25">
+			<name x="59" y="-59">Driving</name>
+		</location>
+		<location id="id24" x="306" y="-195">
+			<name x="323" y="-204">Turn</name>
+			<label kind="invariant" x="297" y="-229">g&lt;2</label>
+		</location>
+		<location id="id25" x="306" y="-25">
+			<name x="306" y="-8">lineUp</name>
+		</location>
+		<location id="id26" x="127" y="161">
+			<name x="85" y="178">SafeDistance</name>
+		</location>
+		<init ref="id22"/>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id23"/>
+			<label kind="guard" x="0" y="51">safeDistance== true</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id26"/>
+			<label kind="guard" x="187" y="17">safeDistance== false</label>
+			<label kind="synchronisation" x="187" y="102">keepDistance!</label>
+			<nail x="221" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="161" y="-42">turnComplete?</label>
+			<label kind="assignment" x="145" y="-25">safeDistance:= false</label>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id25"/>
+			<label kind="assignment" x="229" y="-110">l_Turn:= true</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id24"/>
+			<label kind="synchronisation" x="59" y="-144">steering!</label>
+			<label kind="assignment" x="76" y="-170">g := 0, l_Turn:= false, f1_Turn:=false</label>
+			<nail x="127" y="-195"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-51" y="-25">platoonFormed?</label>
+			<label kind="assignment" x="-34" y="-51">g := 0</label>
+		</transition>
+	</template>
+	<template>
+		<name>Follower1_ACC</name>
+		<location id="id27" x="-212" y="-161">
+			<name x="-263" y="-169">Wait</name>
+			<label kind="invariant" x="-238" y="-195">g&lt;2</label>
+		</location>
+		<location id="id28" x="-212" y="0">
+			<name x="-280" y="-25">Driving</name>
+		</location>
+		<location id="id29" x="-466" y="0">
+			<name x="-476" y="-34">standby</name>
+		</location>
+		<location id="id30" x="-17" y="-161">
+			<name x="0" y="-178">turn</name>
+			<label kind="invariant" x="-34" y="-195">g&lt;4</label>
+		</location>
+		<location id="id31" x="-17" y="0">
+			<name x="0" y="9">lineUp</name>
+		</location>
+		<init ref="id29"/>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id28"/>
+			<label kind="synchronisation" x="-161" y="0">turnComplete?</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id31"/>
+			<label kind="assignment" x="-110" y="-85">f1_Turn:= true</label>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id27"/>
+			<label kind="synchronisation" x="-280" y="-76">steering?</label>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id30"/>
+			<label kind="guard" x="-161" y="-187">l_Turn== true</label>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id28"/>
+			<label kind="synchronisation" x="-407" y="9">platoonFormed?</label>
+		</transition>
+	</template>
+	<template>
+		<name>Follower2_ACC</name>
+		<location id="id32" x="0" y="-136">
+			<name x="-51" y="-144">Wait</name>
+			<label kind="invariant" x="-17" y="-170">g&lt;4</label>
+		</location>
+		<location id="id33" x="0" y="25">
+			<name x="-68" y="0">Driving</name>
+		</location>
+		<location id="id34" x="-254" y="25">
+			<name x="-264" y="-9">standby</name>
+		</location>
+		<location id="id35" x="195" y="-136">
+			<name x="212" y="-153">turn</name>
+			<label kind="invariant" x="178" y="-170">g&lt;6</label>
+		</location>
+		<location id="id36" x="195" y="25">
+			<name x="212" y="34">lineUp</name>
+		</location>
+		<init ref="id34"/>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id33"/>
+			<label kind="synchronisation" x="51" y="25">turnComplete!</label>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id36"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id32"/>
+			<label kind="synchronisation" x="-68" y="-51">steering?</label>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id35"/>
+			<label kind="guard" x="34" y="-161">f1_Turn==true</label>
+		</transition>
+		<transition>
+			<source ref="id34"/>
+			<target ref="id33"/>
+			<label kind="synchronisation" x="-195" y="34">platoonFormed?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">safety</name>
+		<declaration>// Place local declarations here.
+clock t;
+int d = 10;</declaration>
+		<location id="id37" x="-289" y="59">
+			<name x="-340" y="25">far_dist</name>
+			<label kind="invariant" x="-331" y="8">t&lt;=5</label>
+		</location>
+		<location id="id38" x="-42" y="-187">
+			<name x="-17" y="-204">safe_dist</name>
+			<label kind="invariant" x="-34" y="-221">t&lt;=5</label>
+		</location>
+		<location id="id39" x="144" y="68">
+			<name x="153" y="34">break_dist</name>
+			<label kind="invariant" x="161" y="51">t&lt;=5</label>
+		</location>
+		<location id="id40" x="289" y="-195">
+			<name x="279" y="-229">Start</name>
+		</location>
+		<init ref="id40"/>
+		<transition>
+			<source ref="id40"/>
+			<target ref="id38"/>
+			<label kind="synchronisation" x="85" y="-263">keepDistance?</label>
+			<nail x="119" y="-238"/>
+		</transition>
+		<transition>
+			<source ref="id38"/>
+			<target ref="id38"/>
+			<label kind="guard" x="-433" y="-187">t==5 &amp;&amp; safeDistance== false</label>
+			<label kind="assignment" x="-280" y="-204">d:=16</label>
+			<nail x="-238" y="-221"/>
+			<nail x="-238" y="-161"/>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id39"/>
+			<label kind="guard" x="144" y="93">t==5</label>
+			<label kind="assignment" x="144" y="119">d:=11</label>
+			<nail x="221" y="102"/>
+			<nail x="110" y="127"/>
+		</transition>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id37"/>
+			<label kind="guard" x="-314" y="85">t==5</label>
+			<label kind="assignment" x="-331" y="110">d:=14</label>
+			<nail x="-365" y="76"/>
+			<nail x="-365" y="76"/>
+			<nail x="-272" y="127"/>
+		</transition>
+		<transition>
+			<source ref="id38"/>
+			<target ref="id38"/>
+			<label kind="guard" x="-136" y="-263">t==5 &amp;&amp; safeDistance== false</label>
+			<label kind="assignment" x="-136" y="-238">d:=9</label>
+			<nail x="-229" y="-237"/>
+			<nail x="-42" y="-238"/>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id38"/>
+			<label kind="guard" x="8" y="0">d&gt;10</label>
+			<label kind="assignment" x="-51" y="-85">t:=0 , safeDistance:= true</label>
+			<nail x="-1" y="17"/>
+			<nail x="-1" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id38"/>
+			<target ref="id39"/>
+			<label kind="guard" x="68" y="-161">d&lt;10 &amp;&amp; safeDistance == false</label>
+			<label kind="assignment" x="127" y="-102">t:=0</label>
+			<nail x="119" y="-93"/>
+			<nail x="119" y="-93"/>
+		</transition>
+		<transition>
+			<source ref="id38"/>
+			<target ref="id37"/>
+			<label kind="guard" x="-391" y="-110">d&gt;15 &amp;&amp; safeDistance== false</label>
+			<label kind="assignment" x="-187" y="-102">t:=0</label>
+			<nail x="-144" y="-153"/>
+			<nail x="-255" y="-25"/>
+		</transition>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id38"/>
+			<label kind="guard" x="-187" y="8">d&lt;15</label>
+			<label kind="assignment" x="-204" y="-42">t:=0 , safeDistance:= true</label>
+			<nail x="-161" y="34"/>
+			<nail x="-68" y="-76"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+Operator1 = Operator();
+leader_P= Leader_P();
+follower1_P= Follower1_P();
+follower2_P= Follower2_P();
+leader_ACC = Leader_ACC();
+follower1_ACC = Follower1_ACC(); 
+follower2_ACC = Follower2_ACC();
+safetyProcess = safety();
+
+// List one or more processes to be composed into a system.
+//system Cloud1,Leader1,Follower1,Follower2 ;
+
+system Operator1,leader_P,follower1_P,follower2_P,leader_ACC,follower1_ACC, follower2_ACC, safetyProcess; 
+    </system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; not deadlock</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; deadlock</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
