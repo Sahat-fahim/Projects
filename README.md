@@ -1,10 +1,6 @@
-Welcome to my repository 
+# Welcome to My Repository
 
-The perpose of this repository is store all my projects. Source code, video link, project documentation are available in folder representing a certain project.
-
-Current running project : 
-
-1. Precision Farming. (Semester)
+This repository serves as a comprehensive archive for all my projects. Within each project's designated folder, you'll find the source code, video links, and detailed documentation.
 
 
 
